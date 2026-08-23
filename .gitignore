@@ -1,0 +1,108 @@
+# ------------------------------------------
+# Dependencies
+# ------------------------------------------
+node_modules/
+.npm/
+.pnpm-store/
+.yarn/
+.yarn-cache/
+
+# ------------------------------------------
+# Environment Variables / Secrets
+# ------------------------------------------
+.env
+.env.*
+!.env.example
+
+# ------------------------------------------
+# Build / Distribution
+# ------------------------------------------
+dist/
+build/
+out/
+coverage/
+.cache/
+.parcel-cache/
+.vite/
+
+# ------------------------------------------
+# Logs
+# ------------------------------------------
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ------------------------------------------
+# Runtime / Temporary Files
+# ------------------------------------------
+tmp/
+temp/
+*.tmp
+*.temp
+
+# ------------------------------------------
+# OS Generated Files
+# ------------------------------------------
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+.VolumeIcon.icns
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ------------------------------------------
+# VS Code
+# ------------------------------------------
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# ------------------------------------------
+# Testing
+# ------------------------------------------
+.nyc_output/
+test-results/
+
+# ------------------------------------------
+# MongoDB / Local Database Files
+# ------------------------------------------
+*.db
+*.sqlite
+*.sqlite3
+
+# ------------------------------------------
+# Generated / Uploaded Files
+# ------------------------------------------
+uploads/
+storage/
+
+# ------------------------------------------
+# TypeScript
+# ------------------------------------------
+*.tsbuildinfo
+
+# ------------------------------------------
+# Miscellaneous
+# ------------------------------------------
+*.pid
+*.seed
+*.tgz

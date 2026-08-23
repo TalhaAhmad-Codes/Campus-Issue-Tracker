@@ -1,0 +1,1378 @@
+CAMPUS ISSUE TRACKER — PROJECT SPECIFICATION
+================================================
+
+Document Purpose
+----------------
+This document is the complete project specification for a beginner-to-intermediate MERN stack project called "Campus Issue Tracker".
+
+It is intended to be provided to an AI coding assistant as the primary project context and development reference.
+
+The project should remain intentionally manageable. Do not introduce enterprise-level architecture, unnecessary abstractions, microservices, CQRS, event sourcing, or other advanced patterns unless explicitly requested.
+
+
+1. PROJECT OVERVIEW
+===================
+
+Project Name:
+Campus Issue Tracker
+
+Project Type:
+Campus/university issue reporting and management web application.
+
+Primary Goal:
+Allow students to report campus problems and allow staff/admins to track, assign, process, resolve, and close those issues through a centralized web application.
+
+Example:
+A student notices that a projector in Computer Lab 3 is not working. The student creates an issue containing its title, description, category, location, and priority. An administrator can assign it to an appropriate staff member. The staff member works on it and updates its status. The student can follow the progress until the issue is resolved and closed.
+
+The application should feel like a small real-world service-desk/ticketing system, but it must remain simple enough for a beginner/intermediate MERN learner to complete within a reasonable period.
+
+
+2. TARGET USERS AND ROLES
+==========================
+
+There are three primary roles:
+
+1. Student
+2. Staff
+3. Admin
+
+STUDENT
+-------
+Students can:
+- Register and log in.
+- View their own reported issues.
+- Create new issues.
+- View issue details.
+- Add comments to their issues.
+- View issue status and progress/history.
+- Receive in-app notifications when important changes occur.
+- Edit/delete their own issues only where the business rules permit.
+
+STAFF
+-----
+Staff members can:
+- Log in.
+- View issues assigned to them.
+- View relevant issue details.
+- Add comments.
+- Update issue status according to permitted workflow.
+- Mark work as completed/resolved.
+- View their workload.
+- Receive notifications about assignments and important updates.
+
+ADMIN
+-----
+Admins can:
+- View all issues.
+- Assign issues to staff.
+- Change issue priority.
+- Manage users/staff.
+- Manage issue categories.
+- View system-wide statistics.
+- View all issue history/comments where appropriate.
+- Manage or moderate issues.
+- Perform administrative operations.
+
+IMPORTANT:
+Use role-based authorization on the backend. Never rely only on frontend route protection for security.
+
+
+3. CORE FUNCTIONAL REQUIREMENTS
+================================
+
+3.1 Authentication
+------------------
+
+Implement:
+- User registration.
+- User login.
+- User logout.
+- JWT-based authentication.
+- Password hashing.
+- Current-user endpoint.
+- Protected API routes.
+- Role-based authorization.
+
+Initial registration should create Student users by default.
+
+Admin-created staff/admin accounts can be added later.
+
+Suggested endpoints:
+
+POST   /api/auth/register
+POST   /api/auth/login
+GET    /api/auth/me
+
+
+3.2 User Management
+-------------------
+
+User properties should approximately include:
+
+- id
+- name
+- email
+- passwordHash
+- role
+- isActive
+- createdAt
+- updatedAt
+
+Roles:
+- Student
+- Staff
+- Admin
+
+Admins should be able to view/manage users.
+
+Do not allow ordinary users to arbitrarily change their role.
+
+
+3.3 Issue Management
+--------------------
+
+Issue is the primary entity.
+
+An issue should approximately contain:
+
+- id
+- title
+- description
+- categoryId
+- location
+- priority
+- status
+- reportedBy
+- assignedTo
+- createdAt
+- updatedAt
+- resolvedAt
+- closedAt
+
+Issue title:
+Short description of the problem.
+
+Issue description:
+Detailed explanation of the problem.
+
+Category:
+Reference to a Category.
+
+Location:
+Should contain practical campus location information.
+
+Example:
+
+Building: Computer Science Block
+Floor: 2
+Room: Lab 3
+Additional Details: Near the entrance
+
+Priority:
+- Low
+- Medium
+- High
+- Critical
+
+Status:
+- Open
+- Assigned
+- In Progress
+- Resolved
+- Closed
+- Rejected
+
+
+3.4 Issue Workflow
+------------------
+
+Default workflow:
+
+Open
+  ->
+Assigned
+  ->
+In Progress
+  ->
+Resolved
+  ->
+Closed
+
+Rejected can be used when an issue is invalid, inappropriate, duplicate, or otherwise not actionable.
+
+Do not implement a complicated workflow engine.
+
+The backend should validate allowed status transitions.
+
+Example:
+
+Open -> Assigned
+Assigned -> In Progress
+In Progress -> Resolved
+Resolved -> Closed
+
+The exact transition rules may be adjusted during implementation, but invalid arbitrary transitions should not be accepted blindly.
+
+
+3.5 Issue Assignment
+--------------------
+
+Admins can assign an issue to a Staff member.
+
+Example:
+
+Issue:
+Projector not working
+
+Assigned Staff:
+Ahmed Khan
+
+The assigned staff member should then see the issue in their dashboard.
+
+When assignment occurs:
+- Store assignedTo.
+- Record the change in issue history.
+- Generate an in-app notification for the staff member.
+
+
+3.6 Categories
+--------------
+
+Initial categories may include:
+
+- IT
+- Electrical
+- Furniture
+- Cleaning
+- Plumbing
+- Security
+- Facilities
+- Other
+
+Categories should be stored in their own collection/table rather than hardcoded into every issue.
+
+Admins can:
+- Create categories.
+- Edit categories.
+- Deactivate/remove categories where appropriate.
+
+Avoid physically deleting categories if doing so would break historical issue references. Prefer an isActive field when appropriate.
+
+
+3.7 Comments
+------------
+
+Users should be able to add comments to issues where permitted.
+
+A comment should approximately contain:
+
+- id
+- issueId
+- authorId
+- content
+- createdAt
+- updatedAt
+
+Example conversation:
+
+Student:
+"The projector is still not working."
+
+Staff:
+"I checked the HDMI cable. I will replace it tomorrow."
+
+Comments should be associated with the issue.
+
+
+3.8 Issue History / Activity Log
+--------------------------------
+
+Maintain a simple activity/history collection.
+
+Record important events such as:
+
+- Issue created.
+- Issue assigned.
+- Assignment changed.
+- Priority changed.
+- Status changed.
+- Comment added.
+- Issue resolved.
+- Issue closed.
+- Issue rejected.
+
+Example:
+
+10:30 AM — Issue created by Ali.
+10:45 AM — Assigned to Ahmed.
+11:20 AM — Status changed to In Progress.
+02:10 PM — Comment added by Ahmed.
+Next day — Status changed to Resolved.
+
+Suggested history fields:
+
+- id
+- issueId
+- actorId
+- actionType
+- oldValue
+- newValue
+- description
+- createdAt
+
+Keep the activity system simple. It is an audit/history feature, not a full event-sourcing system.
+
+
+3.9 Notifications
+------------------
+
+Use simple in-app notifications.
+
+Examples:
+
+- "Your issue #1042 has been assigned to Ahmed."
+- "Issue #1042 is now In Progress."
+- "Your issue #1042 has been resolved."
+
+Suggested fields:
+
+- id
+- recipientId
+- issueId (optional)
+- type
+- message
+- isRead
+- createdAt
+
+Real-time WebSocket/socket.io notifications are OPTIONAL and should be implemented only after the core application works.
+
+
+3.10 Search, Filtering, and Pagination
+---------------------------------------
+
+Issues should support:
+
+Search:
+- Title
+- Description
+- Location
+
+Filters:
+- Status
+- Priority
+- Category
+- Assigned Staff
+- Date range
+
+Pagination:
+- page
+- limit
+
+Example:
+
+GET /api/issues?search=projector&status=InProgress&priority=High&page=1&limit=10
+
+The backend should perform filtering rather than downloading all issues to the frontend and filtering everything there.
+
+
+3.11 Dashboards
+---------------
+
+STUDENT DASHBOARD
+-----------------
+Show:
+- Total reported issues.
+- Open issues.
+- In-progress issues.
+- Resolved issues.
+- Recent issues.
+- Quick action to create an issue.
+
+STAFF DASHBOARD
+---------------
+Show:
+- Total assigned issues.
+- Open assigned issues.
+- In-progress issues.
+- Resolved issues.
+- High/Critical priority issues.
+- Recent assigned issues.
+
+ADMIN DASHBOARD
+---------------
+Show:
+- Total issues.
+- Open issues.
+- Assigned issues.
+- In-progress issues.
+- Resolved issues.
+- Critical issues.
+- Issue counts by category.
+- Optional issue counts by status/priority.
+- Recent issues.
+
+Charts are optional and should not delay core functionality.
+
+
+3.12 File Attachments — OPTIONAL
+--------------------------------
+
+Users may eventually attach images to issues.
+
+Example:
+A student uploads a photograph of a leaking pipe.
+
+Do NOT implement file uploads during the initial MVP unless explicitly requested.
+
+If implemented later, use an appropriate file/object storage solution rather than storing large files directly in MongoDB documents.
+
+
+4. NON-FUNCTIONAL REQUIREMENTS
+===============================
+
+The application should be:
+
+- Responsive.
+- Usable on desktop and mobile.
+- Secure against basic authentication/authorization mistakes.
+- Easy to understand.
+- Maintainable.
+- Beginner-friendly.
+- API-driven.
+- Modular without overengineering.
+
+Use clear naming and consistent conventions.
+
+Validate input on the backend even if frontend validation exists.
+
+Return consistent API responses and HTTP status codes.
+
+Do not expose password hashes or sensitive authentication data.
+
+
+5. TECH STACK
+=============
+
+FRONTEND
+--------
+- React
+- JavaScript or TypeScript
+
+Preferred:
+React + TypeScript if the project is comfortable with TypeScript.
+
+Recommended frontend tools:
+- React
+- React Router
+- Axios or Fetch API
+- CSS/Tailwind CSS or another simple styling solution
+
+Do not introduce a large UI framework unless necessary.
+
+BACKEND
+-------
+- Node.js
+- Express.js
+- JavaScript or TypeScript
+
+Preferred:
+Node.js + Express + TypeScript if TypeScript is being used on the frontend.
+
+DATABASE
+--------
+- MongoDB
+- Mongoose
+
+AUTHENTICATION
+--------------
+- JWT
+- bcrypt/bcryptjs or an equivalent password hashing library
+
+DEVELOPMENT TOOLS
+-----------------
+- Git
+- GitHub
+- VS Code
+- npm
+
+OPTIONAL:
+- Postman/Insomnia for API testing.
+- MongoDB Compass for database inspection.
+
+
+6. RECOMMENDED PROJECT ARCHITECTURE
+====================================
+
+Use a simple separated client/server architecture.
+
+Root:
+
+campus-issue-tracker/
+|
+|-- client/
+|
+|-- server/
+|
+|-- README.md
+|-- .gitignore
+|-- .env.example
+
+
+CLIENT STRUCTURE
+----------------
+
+client/
+|
+|-- src/
+|   |
+|   |-- components/
+|   |-- pages/
+|   |-- layouts/
+|   |-- routes/
+|   |-- services/
+|   |-- hooks/
+|   |-- context/
+|   |-- types/
+|   |-- utils/
+|   |-- assets/
+|   |-- App.*
+|   |-- main.*
+|
+|-- public/
+
+
+SERVER STRUCTURE
+----------------
+
+server/
+|
+|-- src/
+|   |
+|   |-- config/
+|   |-- controllers/
+|   |-- middleware/
+|   |-- models/
+|   |-- routes/
+|   |-- services/
+|   |-- utils/
+|   |-- validators/
+|   |-- app.*
+|   |-- server.*
+|
+|-- .env.example
+
+
+ARCHITECTURAL STYLE
+-------------------
+
+Use a simple layered Express architecture:
+
+Route
+  ->
+Controller
+  ->
+Service
+  ->
+Model / Database
+
+Example:
+
+POST /api/issues
+      |
+      v
+Issue Route
+      |
+      v
+Issue Controller
+      |
+      v
+Issue Service
+      |
+      v
+Issue Model
+      |
+      v
+MongoDB
+
+Controllers should handle HTTP concerns.
+
+Services should contain business logic.
+
+Models should define MongoDB/Mongoose schemas.
+
+Routes should define endpoints and attach middleware.
+
+Middleware should handle concerns such as:
+- Authentication.
+- Authorization.
+- Error handling.
+- Request validation.
+
+Do not add repository abstractions unless there is an actual reason to do so.
+
+
+7. DATABASE DESIGN
+==================
+
+Recommended MongoDB collections:
+
+users
+issues
+categories
+comments
+issueHistories
+notifications
+
+USER
+----
+{
+  _id,
+  name,
+  email,
+  passwordHash,
+  role,
+  isActive,
+  createdAt,
+  updatedAt
+}
+
+
+ISSUE
+-----
+{
+  _id,
+  title,
+  description,
+  categoryId,
+  location: {
+    building,
+    floor,
+    room,
+    additionalDetails
+  },
+  priority,
+  status,
+  reportedBy,
+  assignedTo,
+  createdAt,
+  updatedAt,
+  resolvedAt,
+  closedAt
+}
+
+
+CATEGORY
+--------
+{
+  _id,
+  name,
+  description,
+  isActive,
+  createdAt,
+  updatedAt
+}
+
+
+COMMENT
+-------
+{
+  _id,
+  issueId,
+  authorId,
+  content,
+  createdAt,
+  updatedAt
+}
+
+
+ISSUE HISTORY
+-------------
+{
+  _id,
+  issueId,
+  actorId,
+  actionType,
+  oldValue,
+  newValue,
+  description,
+  createdAt
+}
+
+
+NOTIFICATION
+------------
+{
+  _id,
+  recipientId,
+  issueId,
+  type,
+  message,
+  isRead,
+  createdAt
+}
+
+
+RELATIONSHIPS
+-------------
+
+User -> Issues:
+A user can report many issues.
+
+User -> Assigned Issues:
+A staff user can be assigned many issues.
+
+Category -> Issues:
+A category can contain many issues.
+
+Issue -> Comments:
+An issue can have many comments.
+
+Issue -> History:
+An issue can have many history records.
+
+User -> Notifications:
+A user can have many notifications.
+
+Use MongoDB ObjectId references for these relationships where appropriate.
+
+
+8. API DESIGN
+=============
+
+AUTH
+----
+
+POST   /api/auth/register
+POST   /api/auth/login
+GET    /api/auth/me
+
+
+USERS
+-----
+
+GET    /api/users
+GET    /api/users/:id
+PUT    /api/users/:id
+PATCH  /api/users/:id/status
+
+Admin-only operations should be protected by role middleware.
+
+
+ISSUES
+------
+
+GET    /api/issues
+POST   /api/issues
+GET    /api/issues/:id
+PUT    /api/issues/:id
+DELETE /api/issues/:id
+
+PATCH  /api/issues/:id/status
+PATCH  /api/issues/:id/assign
+PATCH  /api/issues/:id/priority
+
+
+COMMENTS
+--------
+
+GET    /api/issues/:id/comments
+POST   /api/issues/:id/comments
+PUT    /api/comments/:id
+DELETE /api/comments/:id
+
+
+CATEGORIES
+----------
+
+GET    /api/categories
+POST   /api/categories
+PUT    /api/categories/:id
+PATCH  /api/categories/:id/status
+
+
+HISTORY
+-------
+
+GET    /api/issues/:id/history
+
+
+NOTIFICATIONS
+-------------
+
+GET    /api/notifications
+PATCH  /api/notifications/:id/read
+PATCH  /api/notifications/read-all
+
+
+9. AUTHORIZATION RULES
+======================
+
+Student:
+- Can create issues.
+- Can view their own issues.
+- Can comment on permitted issues.
+- Cannot assign issues.
+- Cannot manage categories.
+- Cannot manage users.
+- Cannot change their own role.
+
+Staff:
+- Can view issues assigned to them.
+- Can update permitted fields/statuses of assigned issues.
+- Can comment on assigned issues.
+- Cannot manage users/categories unless explicitly granted permission.
+
+Admin:
+- Full issue management.
+- Assign issues.
+- Change priority.
+- Manage categories.
+- Manage users.
+- View system-wide information.
+
+Backend must enforce these rules.
+
+
+10. UI / DESIGN DIRECTION
+=========================
+
+The UI should be clean, modern, and practical rather than overly decorative.
+
+GENERAL STYLE
+-------------
+
+- Responsive layout.
+- Sidebar/dashboard layout for authenticated users.
+- Top navigation/header.
+- Cards for statistics.
+- Tables/lists for issues.
+- Badges for status and priority.
+- Clear action buttons.
+- Forms with proper validation.
+- Confirmation dialogs for destructive operations.
+- Loading states.
+- Empty states.
+- Error states.
+- Toast/notification feedback where useful.
+
+ISSUE LIST
+----------
+
+Each issue item/card/table row should show:
+
+- Issue ID.
+- Title.
+- Category.
+- Location.
+- Priority.
+- Status.
+- Reporter/assignee where relevant.
+- Created date.
+
+ISSUE DETAILS
+-------------
+
+Should contain:
+
+- Title.
+- Description.
+- Category.
+- Location.
+- Priority.
+- Status.
+- Reporter.
+- Assigned staff.
+- Created/updated dates.
+- Action controls according to role.
+- Comments.
+- Activity/history timeline.
+
+DASHBOARD
+---------
+
+Use a clear hierarchy:
+
+Header
+  ->
+Summary statistics
+  ->
+Filters/search
+  ->
+Main issue list
+  ->
+Optional charts/recent activity
+
+
+11. FRONTEND ROUTING
+====================
+
+Suggested routes:
+
+/
+ /login
+ /register
+
+/dashboard
+
+/issues
+/issues/new
+/issues/:id
+
+/profile
+
+/admin/users
+/admin/categories
+/admin/issues
+
+/staff/issues
+
+The exact route structure can be changed if a better structure emerges.
+
+Frontend routes must not be considered the security boundary. Backend authorization is mandatory.
+
+
+12. VALIDATION
+==============
+
+Validate both frontend and backend.
+
+Examples:
+
+Registration:
+- Name required.
+- Valid email required.
+- Password required.
+- Password minimum length.
+
+Issue:
+- Title required.
+- Description required.
+- Category required.
+- Location required.
+- Priority must be a valid enum/value.
+
+Comment:
+- Content required.
+- Prevent empty/whitespace-only comments.
+
+Use appropriate HTTP status codes:
+
+200 — successful request
+201 — resource created
+400 — invalid request
+401 — unauthenticated
+403 — unauthorized
+404 — resource not found
+409 — conflict
+422 — validation error if desired
+500 — unexpected server error
+
+
+13. ERROR HANDLING
+==================
+
+Backend should have centralized error-handling middleware.
+
+Do not expose raw stack traces to users in production.
+
+Errors should have a predictable shape, for example:
+
+{
+  "success": false,
+  "message": "Issue not found",
+  "errors": []
+}
+
+Successful responses can follow a similarly consistent structure if desired.
+
+
+14. SECURITY REQUIREMENTS
+=========================
+
+Minimum security requirements:
+
+- Hash passwords.
+- Never return passwordHash.
+- Validate and sanitize input.
+- Protect authenticated endpoints.
+- Enforce authorization on backend.
+- Use environment variables for secrets.
+- Do not commit .env files.
+- Configure appropriate CORS.
+- Use secure JWT handling.
+- Avoid trusting client-provided user IDs for authorization decisions.
+- Validate MongoDB ObjectIds.
+- Prevent users from modifying resources they do not own unless their role permits it.
+
+For production, consider:
+- HTTP security headers.
+- Rate limiting.
+- Secure cookies if cookie-based JWT storage is chosen.
+- CSRF protection where applicable.
+
+
+15. DEVELOPMENT PHASES
+======================
+
+PHASE 1 — PROJECT SETUP
+-----------------------
+- Initialize Git repository.
+- Create client.
+- Create server.
+- Configure MongoDB.
+- Configure environment variables.
+- Establish basic Express API.
+- Establish React application.
+- Verify frontend/backend/database communication.
+
+
+PHASE 2 — AUTHENTICATION
+------------------------
+- User model.
+- Registration.
+- Login.
+- Password hashing.
+- JWT authentication.
+- Auth middleware.
+- Current-user endpoint.
+- Protected frontend routes.
+- Basic role support.
+
+
+PHASE 3 — ISSUE MVP
+-------------------
+Implement:
+- Create issue.
+- List issues.
+- View issue details.
+- Edit issue.
+- Delete issue where allowed.
+- Category.
+- Location.
+- Priority.
+- Status.
+
+At the end of this phase, the application should already be usable.
+
+
+PHASE 4 — STAFF WORKFLOW
+------------------------
+- Staff role.
+- Admin assignment.
+- Staff dashboard.
+- Assigned issue list.
+- Status updates.
+- Backend status transition validation.
+
+
+PHASE 5 — COMMENTS & HISTORY
+----------------------------
+- Issue comments.
+- Issue history/activity.
+- Assignment history.
+- Status history.
+- Priority history.
+
+
+PHASE 6 — SEARCH & DASHBOARDS
+-----------------------------
+- Search.
+- Filters.
+- Pagination.
+- Student dashboard.
+- Staff dashboard.
+- Admin dashboard.
+- Statistics.
+
+
+PHASE 7 — NOTIFICATIONS
+-----------------------
+- In-app notification model.
+- Assignment notifications.
+- Status change notifications.
+- Resolution notifications.
+- Read/unread functionality.
+
+
+PHASE 8 — OPTIONAL FEATURES
+---------------------------
+Only after the core project is stable:
+
+- Image/file attachments.
+- Real-time Socket.IO notifications.
+- Charts.
+- Advanced reporting.
+- Email notifications.
+- Dark mode.
+- Campus/building management.
+- Issue duplicate detection.
+- Advanced admin analytics.
+
+
+16. MVP DEFINITION
+==================
+
+The MVP should contain only:
+
+- Registration/login.
+- JWT authentication.
+- Student/Staff/Admin roles.
+- Create issue.
+- View issues.
+- View issue details.
+- Edit/delete according to permissions.
+- Categories.
+- Priority.
+- Location.
+- Status workflow.
+- Admin assignment.
+- Staff issue management.
+- Comments.
+- Basic issue history.
+- Basic dashboards.
+- Search/filtering.
+
+The following are NOT required for MVP:
+
+- File uploads.
+- Socket.IO.
+- Email.
+- SMS.
+- AI.
+- Advanced analytics.
+- Maps.
+- Complex reporting.
+- Multi-campus support.
+
+
+17. RECOMMENDED DEVELOPMENT ORDER
+==================================
+
+Build vertically rather than creating every model first.
+
+Recommended order:
+
+1. Project setup.
+2. MongoDB connection.
+3. User model.
+4. Authentication API.
+5. Authentication UI.
+6. Role-based authorization.
+7. Category model/API.
+8. Issue model/API.
+9. Create Issue UI.
+10. Issue list UI.
+11. Issue details UI.
+12. Admin assignment.
+13. Staff dashboard.
+14. Status workflow.
+15. Comments.
+16. History.
+17. Search/filter/pagination.
+18. Student dashboard.
+19. Admin dashboard.
+20. Notifications.
+21. Polish and optional features.
+
+At every stage:
+- Run the application.
+- Test the API.
+- Test frontend integration.
+- Commit working changes to Git.
+
+
+18. TESTING STRATEGY
+====================
+
+Initially, manual testing is acceptable.
+
+Use Postman/Insomnia for API testing.
+
+Test at minimum:
+
+Authentication:
+- Valid registration.
+- Duplicate email.
+- Invalid login.
+- Protected route without token.
+- Protected route with invalid token.
+
+Issues:
+- Create valid issue.
+- Create invalid issue.
+- View issue.
+- Update issue.
+- Unauthorized update.
+- Delete issue.
+- Invalid issue ID.
+
+Authorization:
+- Student attempting admin endpoint.
+- Staff attempting admin endpoint.
+- Admin accessing all functionality.
+
+Workflow:
+- Valid status transition.
+- Invalid status transition.
+- Assignment.
+- Unauthorized assignment.
+
+Later, add automated tests for important services/controllers.
+
+
+19. GIT WORKFLOW
+================
+
+Use Git throughout development.
+
+Suggested branches:
+
+main
+develop
+
+Optional feature branches:
+
+feature/auth
+feature/issues
+feature/comments
+feature/dashboard
+feature/notifications
+
+Commit examples:
+
+feat: add user registration
+feat: implement JWT authentication
+feat: add issue creation API
+feat: add staff assignment
+feat: add issue comments
+fix: validate issue status transition
+ui: improve issue details page
+
+
+20. ENVIRONMENT VARIABLES
+=========================
+
+Server should use environment variables for configuration.
+
+Example:
+
+PORT=5000
+MONGODB_URI=
+JWT_SECRET=
+JWT_EXPIRES_IN=
+CLIENT_URL=
+
+Do not commit real credentials/secrets.
+
+Provide a .env.example file.
+
+
+21. AI ASSISTANT DEVELOPMENT RULES
+===================================
+
+The AI coding assistant must follow these rules:
+
+1. Do not implement the entire project in one response.
+2. Work incrementally.
+3. Before making major architectural changes, explain the reason.
+4. Prefer simple solutions.
+5. Avoid overengineering.
+6. Do not introduce unnecessary design patterns.
+7. Follow the project architecture defined in this document.
+8. Keep backend authorization separate from frontend UI logic.
+9. Validate all user input on the server.
+10. Keep controllers thin and business logic in services.
+11. Use reusable React components where appropriate.
+12. Keep API communication centralized in frontend services/modules.
+13. Do not duplicate business logic unnecessarily.
+14. Use clear, descriptive names.
+15. Explain important code when introducing a new concept.
+16. When fixing bugs, identify the root cause rather than blindly changing code.
+17. Do not modify unrelated files.
+18. Preserve existing working functionality.
+19. Ask before introducing a major dependency or architectural change.
+20. Keep the application beginner-friendly.
+
+The AI should act as a development mentor as well as a coding assistant.
+
+When teaching a new concept:
+- Explain what it is.
+- Explain why it is needed.
+- Show where it belongs in the project.
+- Then implement it.
+
+
+22. PROJECT SCOPE BOUNDARY
+==========================
+
+This is NOT:
+
+- A full university ERP.
+- A complete Jira clone.
+- A complete helpdesk SaaS.
+- A learning management system.
+- A CRM.
+- A microservice architecture.
+- A real-time distributed system.
+
+The goal is a focused campus issue tracking application that demonstrates practical MERN development.
+
+If a proposed feature significantly increases complexity, classify it as OPTIONAL and do not implement it automatically.
+
+
+23. FINAL SUCCESS CRITERIA
+==========================
+
+The project is considered successful when:
+
+- A student can register/login.
+- A student can report a campus issue.
+- The issue is persisted in MongoDB.
+- The student can track the issue.
+- An admin can view and assign the issue.
+- A staff member can process the issue.
+- Staff can update its status.
+- Students can see the progress.
+- Users can communicate through comments.
+- The system records meaningful issue history.
+- Dashboards provide useful summaries.
+- Search/filtering works.
+- Unauthorized users cannot perform restricted actions.
+- The application is responsive and usable.
+- The codebase remains understandable and maintainable.
+
+
+24. SUGGESTED FUTURE ENHANCEMENTS
+=================================
+
+Potential future enhancements, only after the main project is complete:
+
+- Socket.IO real-time notifications.
+- Email notifications.
+- Image attachments.
+- QR codes for rooms/equipment.
+- Duplicate issue detection.
+- Automatic priority suggestions.
+- AI-powered issue categorization.
+- AI-generated issue summaries.
+- Advanced analytics.
+- SLA/deadline tracking.
+- Campus building management.
+- Department-based staff assignment.
+- Recurring maintenance issues.
+
+These should remain outside the initial scope.
+
+
+END OF SPECIFICATION
+====================
+
+Project:
+Campus Issue Tracker
+
+Stack:
+MongoDB + Express.js + React + Node.js
+
+Primary objective:
+Build a practical, manageable MERN application that teaches real-world authentication, authorization, CRUD, relationships, business logic, workflow, filtering, dashboards, and API integration without unnecessary enterprise complexity.
