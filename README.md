@@ -121,7 +121,7 @@ Real-time notifications may be added using Socket.IO as a future enhancement.
 * **React**
 * **JavaScript**
 * **React Router**
-* **Fetch API**
+* **Axios**
 * **Tailwind CSS**
 
 ### Backend
