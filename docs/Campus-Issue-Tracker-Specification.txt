@@ -457,10 +457,7 @@ Do not expose password hashes or sensitive authentication data.
 FRONTEND
 --------
 - React
-- JavaScript or TypeScript
-
-Preferred:
-React + TypeScript if the project is comfortable with TypeScript.
+- JavaScript
 
 Recommended frontend tools:
 - React
@@ -474,10 +471,7 @@ BACKEND
 -------
 - Node.js
 - Express.js
-- JavaScript or TypeScript
-
-Preferred:
-Node.js + Express + TypeScript if TypeScript is being used on the frontend.
+- JavaScript
 
 DATABASE
 --------
