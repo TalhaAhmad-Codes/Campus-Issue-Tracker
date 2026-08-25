@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import User from "../../models/user.js";
+import { createUserResponseDto } from "../dtos/userResponseDto.js";
 
 // ? Register a new user
 export const registerUser = async ({ name, email, password, role }) => {
@@ -21,5 +22,5 @@ export const registerUser = async ({ name, email, password, role }) => {
     role,
   });
 
-  return user;  // ! It returns user password (hashed)
+  return createUserResponseDto(user);
 };

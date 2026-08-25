@@ -4,7 +4,8 @@ import { registerUser } from "../services/authService.js";
 export const register = async (req, res) => {
   try {
     // * Try to register the user
-    const user = await registerUser(req.body);
+    const registerDto = createRegisterUserDto(req.body);
+    const user = await registerUser(registerDto);
 
     // * Get success response
     return res.status(201).json({
