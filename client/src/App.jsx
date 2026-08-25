@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { checkServerHealth } from "./services/healthService";
 
 function App() {
+    // ? State for checking server status
     const [serverStatus, setServerStatus] = useState("Checking server...");
 
+    // ? Checking the server health
     useEffect(() => {
         const checkHealth = async () => {
             try {
@@ -20,6 +22,7 @@ function App() {
         checkHealth();
     }, []);
 
+    // ? Getting server status HTML code
     return (
         <div className="min-h-screen flex flex-col items-center justify-center gap-4">
             <h1 className="text-4xl font-bold">
@@ -33,4 +36,4 @@ function App() {
     );
 }
 
-export default App;
+export default App;Thunder Client
