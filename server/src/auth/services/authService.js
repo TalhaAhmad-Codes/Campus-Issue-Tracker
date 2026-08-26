@@ -24,3 +24,22 @@ export const registerUser = async ({ name, email, password, role }) => {
 
   return createUserResponseDto(user);
 };
+
+// ? Login an existing user
+export const loginUser = async ({ email, password }) => {
+  // * Fetch user by email
+  const user = await User.findOne({ email });
+
+  // * Check whether the email exists
+  if (!user) {
+    throw new Error("User is not registered with this email");
+  }
+
+  // * Check user password
+  if (!bcrypt.compare(password, user.passwordHash)) {
+    throw new Error("Invalid password");
+  }
+
+  // * Get user
+  return createUserResponseDto(user);
+};
