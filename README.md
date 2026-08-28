@@ -502,7 +502,7 @@ The project is developed incrementally.
 ### Phase 2 — Authentication
 
 * ✅ User registration
-* [ ] Login
+* ✅ Login
 * [ ] JWT authentication
 * ✅ Password hashing
 * [ ] Protected routes

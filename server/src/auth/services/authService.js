@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import User from "../../models/user.js";
 import { createUserResponseDto } from "../dtos/userResponseDto.js";
+import { generateToken } from "../../utils/jwt.js";
 
 // ? Register a new user
 export const registerUser = async ({ name, email, password, role }) => {
@@ -40,6 +41,12 @@ export const loginUser = async ({ email, password }) => {
     throw new Error("Invalid password");
   }
 
+  // * Generate JWT
+  const jwt = generateToken(user);
+
   // * Get user
-  return createUserResponseDto(user);
+  return {
+    token: jwt,
+    user: createUserResponseDto(user),
+  };
 };
