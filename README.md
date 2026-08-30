@@ -493,18 +493,18 @@ The project is developed incrementally.
 
 ### Phase 1 — Foundation
 
-* [ ] Project setup
-* [ ] React application
-* [ ] Express server
-* [ ] MongoDB connection
-* [ ] Environment configuration
+* ✅ Project setup
+* ✅ React application
+* ✅ Express server
+* ✅ MongoDB connection
+* ✅ Environment configuration
 
 ### Phase 2 — Authentication
 
-* [ ] User registration
-* [ ] Login
+* ✅ User registration
+* ✅ Login
 * [ ] JWT authentication
-* [ ] Password hashing
+* ✅ Password hashing
 * [ ] Protected routes
 * [ ] Role-based authorization
 
@@ -597,30 +597,6 @@ The application follows basic security practices including:
 * Restricted administrative operations
 
 Production deployments should additionally consider rate limiting, security headers, secure cookie configuration, and other deployment-specific security measures.
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome.
-
-For significant changes:
-
-1. Create a feature branch.
-2. Implement the change.
-3. Test the affected functionality.
-4. Keep commits focused and descriptive.
-5. Open a pull request.
-
-Suggested branch names:
-
-```text
-feature/auth
-feature/issues
-feature/comments
-feature/dashboard
-feature/notifications
-```
 
 ---
 
