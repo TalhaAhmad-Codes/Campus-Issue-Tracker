@@ -493,18 +493,18 @@ The project is developed incrementally.
 
 ### Phase 1 — Foundation
 
-* ✅ Project setup
-* ✅ React application
-* ✅ Express server
-* ✅ MongoDB connection
-* ✅ Environment configuration
+* [x] Project setup
+* [x] React application
+* [x] Express server
+* [x] MongoDB connection
+* [x] Environment configuration
 
 ### Phase 2 — Authentication
 
-* ✅ User registration
-* ✅ Login
+* [x] User registration
+* [x] Login
 * [ ] JWT authentication
-* ✅ Password hashing
+* [x] Password hashing
 * [ ] Protected routes
 * [ ] Role-based authorization
 
@@ -551,7 +551,7 @@ The project is developed incrementally.
 * [ ] Status notifications
 * [ ] Read/unread functionality
 
-### Future Enhancements
+### Optional Future Enhancements
 
 * [ ] Image/file attachments
 * [ ] Socket.IO real-time notifications
